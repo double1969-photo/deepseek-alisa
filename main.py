@@ -20,8 +20,14 @@ async def main(request: Request):
             "messages": [{"role": "user", "content": user_text}],
         }
     )
-    answer = response.json()["choices"][0]["message"]["content"]
+    response_data = response.json()
+choices = response_data.get("choices")
 
+if not choices or not isinstance(choices, list) or len(choices) == 0:
+    error_info = response_data.get("error", {}).get("message", "Неизвестная ошибка API")
+    answer = f"Ошибка при обращении к DeepSeek: {error_info}"
+else:
+    answer = choices[0]["message"]["content"]
     return {
         "version": body["version"],
         "session": body["session"],
